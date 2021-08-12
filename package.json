@@ -1,0 +1,21 @@
+{
+	"name": "org.voidbert.reader",
+	"displayName": "Book Reader",
+	"version": "1.0.0",
+	"description": "An application to read books and take annotations",
+	"main": "index.js",
+	"keywords": [
+		"ecosystem:cordova"
+	],
+	"author": "Voidbert",
+	"license": "MIT",
+	"devDependencies": {
+		"cordova-plugin-whitelist": "^1.3.4"
+	},
+	"cordova": {
+		"plugins": {
+			"cordova-plugin-whitelist": {}
+		},
+		"platforms": []
+	}
+}
