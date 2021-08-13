@@ -1,0 +1,11 @@
+*.DS_Store
+
+/node_modules/
+/platforms/
+/plugins/
+/typings/
+/package-lock.json
+/jsconfig.json
+
+/.vscode/
+/scripts/__pycache__/
