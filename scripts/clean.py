@@ -25,7 +25,7 @@ def main():
 	listing = listdir(".")
 
 	#Cordova cleanup
-	run_w_err_handling(["cordova", "platform", "remove", "browser"], \
+	run_w_err_handling(["cordova", "platform", "remove", "android"], \
 		"Error removing platform browser. Stopping . . .")
 
 	run_w_err_handling(["cordova", "plugin", "remove", "cordova-plugin-file"], \
