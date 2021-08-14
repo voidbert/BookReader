@@ -12,7 +12,7 @@ from core import run_w_err_handling, cd_project_root
 
 def main():
 	cd_project_root()
-	run_w_err_handling(["cordova", "platform", "add", "browser"], \
+	run_w_err_handling(["cordova", "platform", "add", "android"], \
 		"An Apache Cordova error ocurred. Stopping . . .")
 	run_w_err_handling(["cordova", "plugin", "add", "cordova-plugin-file"], \
 		"An Apache Cordova error ocurred. Stopping . . .")

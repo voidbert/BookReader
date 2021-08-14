@@ -7,8 +7,9 @@
 		An application to read books and take annotations
 	</description>
 
-	<content src="index.html" />
+	<content src="menu/menu.html" />
 	<access origin="*" />
 	<allow-intent href="http://*/*" />
 	<allow-intent href="https://*/*" />
+	<allow-intent href="file://*/*" />
 </widget>
