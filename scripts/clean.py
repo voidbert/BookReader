@@ -30,6 +30,8 @@ def main():
 
 	run_w_err_handling(["cordova", "plugin", "remove", "cordova-plugin-file"], \
 		"Error removing cordova-plugin-file. Stopping . . .")
+	run_w_err_handling(["cordova", "plugin", "remove", "cordova-plugin-android-permissions"], \
+		"An Apache Cordova error ocurred. Stopping . . .")
 
 	#File deletion
 	for file in listing:

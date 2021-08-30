@@ -16,6 +16,8 @@ def main():
 		"An Apache Cordova error ocurred. Stopping . . .")
 	run_w_err_handling(["cordova", "plugin", "add", "cordova-plugin-file"], \
 		"An Apache Cordova error ocurred. Stopping . . .")
+	run_w_err_handling(["cordova", "plugin", "add", "cordova-plugin-android-permissions"], \
+		"An Apache Cordova error ocurred. Stopping . . .")
 
 if __name__ == "__main__":
 	main()

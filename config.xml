@@ -9,7 +9,6 @@
 
 	<content src="menu/menu.html" />
 	<access origin="*" />
-	<allow-intent href="http://*/*" />
-	<allow-intent href="https://*/*" />
 	<allow-intent href="file://*/*" />
+	<hook type="after_prepare" src="scripts/remove_permissions.js" />
 </widget>
