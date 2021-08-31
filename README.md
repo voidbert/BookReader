@@ -15,10 +15,8 @@ shipped version.
 - Apache Cordova (the `cordova` command's parent folder must be in `PATH`, so that the command is
 accessible)
 
-- Python 3 (for environment management)
-
 ## Building
 
-Because there isn't any included Apache Cordova code, you must run `scripts/gen.py` to add the
-needed platforms and plugins. Before committing, the `scripts/clean.py` must be run for the Apache
-Cordova code to be removed.
+Because there isn't any included Apache Cordova code, you must run `npm run gen` to add the
+needed platforms and plugins. Before committing, `npm run clean` must be run for the Apache Cordova
+code to be removed.
