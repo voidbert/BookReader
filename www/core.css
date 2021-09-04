@@ -1,6 +1,8 @@
-/* * {
-	transition: background-color 0.5s;
-} */
+* {
+	user-select: none;
+	-webkit-user-select: none;
+	/* transition: background-color 0.5s; */
+}
 
 body {
 	display: flex;
@@ -20,15 +22,25 @@ body {
 	align-items: center;
 	justify-content: space-between;
 
-	height: 2em;
+	min-height: 2em;
 
 	border-radius: 0.5em;
-	padding: 0.2em 0.5ch;
+	padding: 0.2em 1ch;
 	margin-bottom: 0.5em;
 	
 	font-weight: bold;
 	font-size: 140%;
 
 	background-color: var(--primary-color);
-	color: var(--background-color);
+	color: var(--secondary-color);
+}
+
+#header-bar-icons-container {
+	display: flex;
+	align-items: center;
+}
+
+.header-bar-icon {
+	height: 1.7em;
+	width: 0.85em; /*Dirty fix for poorly working <object> on mobile*/
 }

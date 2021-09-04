@@ -102,22 +102,43 @@ function storeTheme(pageTheme) {
 //Applies a theme to a page. It mustn't be SYSTEM_DEFAULT (use realTheme for converting it to LIGHT
 //or DARK).
 function loadTheme(theme) {
+	//Find every place where the CSS variables for colors need to be changed. This includes all SVG
+	//images.
+	let styles = [ document.documentElement.style ];
+	let svgImages = document.getElementsByClassName("svg-image");
+	for (let i = 0; i < svgImages.length; ++i) {
+		styles.push(svgImages[i].getSVGDocument().documentElement.style);
+	}
+
+	let backgroundColor, foregroundColor, primaryColor, secondaryColor, tertiaryColor;
 	switch (theme) {
 		case PAGE_THEME.LIGHT:
-			document.documentElement.style.setProperty("--background-color", "white");
-			document.documentElement.style.setProperty("--foreground-color", "black");
-			document.documentElement.style.setProperty("--primary-color", "#342B70");
-			document.documentElement.style.setProperty("--secondary-color", "#dacdfd");
+			backgroundColor = "white";
+			foregroundColor = "black";
+			primaryColor = "#342b70";
+			secondaryColor = "white";
+			tertiaryColor = "#978fd3"
 			break;
 		
 		case PAGE_THEME.DARK:
-			document.documentElement.style.setProperty("--background-color", "#110d1f");
-			document.documentElement.style.setProperty("--foreground-color", "white");
-			document.documentElement.style.setProperty("--primary-color", "#bbb0ff");
-			document.documentElement.style.setProperty("--secondary-color", "white");
+			backgroundColor =  "#100f1c";
+			foregroundColor =  "white";
+			primaryColor = "#41387D";
+			secondaryColor = "white";
+			tertiaryColor = "#bbb0ff";
 			break;
+	}
+
+	for (let i = 0; i < styles.length; ++i) {
+		styles[i].setProperty("--background-color", backgroundColor);
+		styles[i].setProperty("--foreground-color", foregroundColor);
+		styles[i].setProperty("--primary-color", primaryColor);
+		styles[i].setProperty("--secondary-color", secondaryColor);
+		styles[i].setProperty("--tertiary-color", tertiaryColor);
 	}
 }
 
 //Load the theme when the page starts.
-loadTheme(realTheme(getTheme()));
+window.onload = function () {
+	loadTheme(realTheme(getTheme()));
+}
