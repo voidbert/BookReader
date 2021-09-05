@@ -123,7 +123,7 @@ function loadTheme(theme) {
 		case PAGE_THEME.DARK:
 			backgroundColor =  "#100f1c";
 			foregroundColor =  "white";
-			primaryColor = "#41387D";
+			primaryColor = "#41387d";
 			secondaryColor = "white";
 			tertiaryColor = "#bbb0ff";
 			break;
@@ -138,7 +138,55 @@ function loadTheme(theme) {
 	}
 }
 
-//Load the theme when the page starts.
-window.onload = function () {
-	loadTheme(realTheme(getTheme()));
+//Returns an HTML div (initially hidden) styled as a dropdown menu from a list of pairs with the
+//structure [name, clickCallback]. An ID can also be added to the object (for CSS modifications in
+//the stylesheet of the specific page, for example).
+function createDropdownMenu(list, id = "") {
+	var div = document.createElement("div");
+	div.className = "dropdown-menu";
+	if (id) {
+		div.id = id;
+	}
+
+	div.style.display = "none";
+	div.style.opacity = "0";
+
+	//Add the list items.
+	for (let i = 0; i < list.length; ++i) {
+		var item = document.createElement("div");
+		item.className = "dropdown-menu-item";
+
+		item.textContent = list[i][0];
+		item.addEventListener("click", list[i][1]);
+		div.appendChild(item);
+	}
+
+	return div;
 }
+
+function showDropdownMenu(menu) {
+	menu.style.removeProperty("display");
+	//Wait for the display property to take effect to turn on the opacity transition.
+	while (getComputedStyle(menu).display === "none");
+	menu.style.opacity = "1";
+}
+
+//When the user clicks outside of the dropdown menu, hide all dropdown menus.
+window.addEventListener("click", function() {
+	let dropdownMenus = document.getElementsByClassName("dropdown-menu");
+	for (let i = 0; i < dropdownMenus.length; ++i) {
+		dropdownMenus[i].style.opacity = "0";
+
+		//Hide the object after the transitions ends (only works with time in seconds)
+		dropdownMenus[i].ontransitionend = function() {
+			dropdownMenus[i].style.display = "none";
+			//Don't set the display to none when the opacity rises to 1 after clicking on the menu.
+			dropdownMenus[i].ontransitionend = function() {}
+		};
+	}
+});
+
+//Load the theme when the page starts.
+window.addEventListener("load", function () {
+	loadTheme(realTheme(getTheme()));
+});
