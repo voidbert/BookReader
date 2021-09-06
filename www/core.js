@@ -139,11 +139,14 @@ function loadTheme(theme) {
 }
 
 //Returns an HTML div (initially hidden) styled as a dropdown menu from a list of pairs with the
-//structure [name, clickCallback]. An ID can also be added to the object (for CSS modifications in
-//the stylesheet of the specific page, for example).
-function createDropdownMenu(list, id = "") {
+//structure [name, clickCallback]. parentId is the ID of the element that, when clicked, triggers
+//the menu. An ID can also be added to the object (for CSS modifications in the stylesheet of the
+//specific page, for example). hideCallback is called when the menu is hidden.
+function createDropdownMenu(list, parentId, id = "", hideCallback = undefined) {
 	var div = document.createElement("div");
 	div.className = "dropdown-menu";
+	div.parentId = parentId;
+	div.hideCallback = hideCallback;
 	if (id) {
 		div.id = id;
 	}
@@ -172,17 +175,24 @@ function showDropdownMenu(menu) {
 }
 
 //When the user clicks outside of the dropdown menu, hide all dropdown menus.
-window.addEventListener("click", function() {
+window.addEventListener("click", function(e) {
 	let dropdownMenus = document.getElementsByClassName("dropdown-menu");
 	for (let i = 0; i < dropdownMenus.length; ++i) {
-		dropdownMenus[i].style.opacity = "0";
+		//Check if the user isn't clicking on the element that, when clicked, displays the menu.
+		if (e.target.id != dropdownMenus[i].parentId) {
+			dropdownMenus[i].style.opacity = "0";
 
-		//Hide the object after the transitions ends (only works with time in seconds)
-		dropdownMenus[i].ontransitionend = function() {
-			dropdownMenus[i].style.display = "none";
-			//Don't set the display to none when the opacity rises to 1 after clicking on the menu.
-			dropdownMenus[i].ontransitionend = function() {}
-		};
+			//Hide the object after the transitions ends (only works with time in seconds)
+			dropdownMenus[i].ontransitionend = function() {
+				dropdownMenus[i].style.display = "none";
+				//Don't set the display to none when the opacity rises to 1 after clicking on the
+				//menu.
+				dropdownMenus[i].ontransitionend = function() {}
+
+				if (dropdownMenus[i].hideCallback)
+					dropdownMenus[i].hideCallback();
+			};
+		}
 	}
 });
 

@@ -1,0 +1,32 @@
+.settings-item {
+	border-bottom: 1px solid var(--foreground-color);
+	margin: 0.7rem;
+	padding-bottom: 0.7rem;
+
+	font-size: 120%;
+
+	transition: height 0.2s;
+}
+
+#app-theme {
+	position: relative;
+	display: block;
+	overflow: auto;
+}
+
+.settings-option-text {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+
+	float: left;
+}
+
+#theme-dropdown-button {
+	float: right;
+}
+
+#theme-dropdown-menu {
+	position: fixed;
+	text-align: center;
+}

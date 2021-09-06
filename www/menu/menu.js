@@ -11,16 +11,16 @@ document.addEventListener("deviceready", function() {
 window.addEventListener("load", function() {
 	//Create the dropdown menu for when the user clicks on the kebab menu
 	let menu = createDropdownMenu([
-		["Settings", function() { alert("The user clicked on Settings"); }],
+		["Settings", function() { window.location = "../settings/settings.html"; }],
 		["About", function() { alert("The user clicked on About"); }]
-	], "kebab-dropdown");
+	], "kebab-menu", "kebab-dropdown");
 
 	//The element's position can't be calculated correctly with CSS (or I'm just very bad at it). If
 	//the window is resized, the element's position should be updated.
 	function updateDropdownPosition() {
 		let rect = document.getElementById("header-bar").getBoundingClientRect();
 		menu.style.right = (window.innerWidth - rect.right) + "px";
-		menu.style.top = "calc(" + rect.bottom + "px + 0.7rem)";
+		menu.style.top = rect.bottom + "px";
 	}
 	window.addEventListener("resize", updateDropdownPosition);
 	updateDropdownPosition();
