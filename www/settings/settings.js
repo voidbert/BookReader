@@ -1,66 +1,52 @@
-document.addEventListener("deviceready", function() {
-	
-}, false);
-
-//Loads the settings from the storage to display them.
+//Loads the theme from the storage to display it.
 function setThemeText() {
 	document.getElementById("theme-dropdown-button").textContent =
-		themeDropdownValues[getTheme()][0];
+		themeDropdownValues[getTheme()].text;
 }
 
-//Theme dropdown menu
+//Stores a theme, loads it and modifies the settings option showing the current theme.
+function updateTheme(theme) {
+	storeTheme(theme);
+	setThemeText();
+	loadTheme(realTheme(theme));	
+}
+
 const themeDropdownValues = [
-	["System Default", function() {
-		storeTheme(PAGE_THEME.SYSTEM_DEFAULT);
-		setThemeText();
-		loadTheme(realTheme(getTheme()));	
-	}],
-	["Light", function() {
-		storeTheme(PAGE_THEME.LIGHT);
-		setThemeText();
-		loadTheme(realTheme(getTheme()));
-	}],
-	["Dark", function() {
-		storeTheme(PAGE_THEME.DARK);
-		setThemeText();
-		loadTheme(realTheme(getTheme()));
-	}]
-]
+	{
+		text: "System Default",
+		clickCallback: function(el) { updateTheme(PAGE_THEME.SYSTEM_DEFAULT); el.updatePosition(); }
+	},
+	{
+		text: "Light",
+		clickCallback: function(el) { updateTheme(PAGE_THEME.LIGHT); el.updatePosition(); }
+	},
+	{
+		text: "Dark",
+		clickCallback: function(el) { updateTheme(PAGE_THEME.DARK); el.updatePosition(); }
+	},
+];
 
 window.addEventListener("load", function() {
 	setThemeText();
 
-	//Theme dropdown menu
-	let themeMenu = createDropdownMenu(themeDropdownValues, "theme-dropdown-button",
-		"theme-dropdown-menu", function() {
-			//When the menu is hidden, resize the theme div.
-			updateDropdownPosition();
-		});
+	//Dropdown menu to choose theme
+	let activator = document.getElementById("theme-dropdown-button");
+	let themeMenu = createDropdownMenu(themeDropdownValues, activator, MENU_ALIGNMENT.RIGHT,
+		activator, false, onShow, onHide);
 
-	//The element's position can't be calculated correctly with CSS (or I'm just very bad at it). If
-	//the window is resized, the element's position should be updated.
-	function updateDropdownPosition() {
-		let buttonRect = document.getElementById("theme-dropdown-button").getBoundingClientRect();
-		themeMenu.style.right = (window.innerWidth - buttonRect.right) + "px";
-		themeMenu.style.top = "calc(" + buttonRect.bottom + "px)";
-
-		//Resize the theme div to fit the menu.
-		let container = document.getElementById("app-theme-with-dropdown");
+	//Move the bottom border with the changing of the settings dropdown menu status
+	let container = document.getElementById("app-theme-with-dropdown");
+	function onShow() {
 		let containerRect = container.getBoundingClientRect();
-		if (themeMenu.style.display === "none") {
-			container.style.height = (buttonRect.bottom - containerRect.top) + "px";
-		} else {			
-			container.style.height =
-				(themeMenu.getBoundingClientRect().bottom - containerRect.top) + "px";
-		}	
+		let activatorRect = activator.getBoundingClientRect();
+		container.style.height =
+			(themeMenu.getBoundingClientRect().bottom - containerRect.top) + "px";
 	}
-	window.addEventListener("resize", updateDropdownPosition);
-	updateDropdownPosition();
 
-	document.body.appendChild(themeMenu);
-	document.getElementById("theme-dropdown-button").addEventListener("click",
-		function() {
-			showDropdownMenu(themeMenu);
-			updateDropdownPosition();
-		});
+	function onHide() {
+		let containerRect = container.getBoundingClientRect();
+		let activatorRect = activator.getBoundingClientRect();
+		container.style.height = (activatorRect.bottom - containerRect.top) + "px";
+	}
+	onHide();
 });

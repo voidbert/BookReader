@@ -52,13 +52,19 @@ body {
 	display: flex;
 	flex-direction: column;
 
+	position: fixed;
+
 	width: fit-content;
 	width: -moz-fit-content;
 
-	transition: opacity 0.2s;
+	transition: opacity 0.2s, left 0.2s, right 0.2s;
 }
 
 .dropdown-menu-item {
+	display: flex;
+	align-items: center;
+	justify-content: left;
+
 	border-radius: 0.5rem;
 	padding: 0.7rem;
 	margin-top: 0.7rem;
@@ -68,6 +74,13 @@ body {
 	cursor: pointer;
 
 	background-color: var(--primary-color);
+}
+
+.dropdown-menu-item-icon {
+	height: 1.8rem;
+	width: 1.8rem; /*Dirty fix for poorly working <object> on mobile*/
+
+	margin-right: 0.7rem;
 }
 
 button {

@@ -2,8 +2,3 @@
 	display: flex;
 	justify-content: left;
 }
-
-#kebab-dropdown {
-	position: fixed;
-	text-align: center;
-}

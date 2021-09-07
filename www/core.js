@@ -138,63 +138,126 @@ function loadTheme(theme) {
 	}
 }
 
-//Returns an HTML div (initially hidden) styled as a dropdown menu from a list of pairs with the
-//structure [name, clickCallback]. parentId is the ID of the element that, when clicked, triggers
-//the menu. An ID can also be added to the object (for CSS modifications in the stylesheet of the
-//specific page, for example). hideCallback is called when the menu is hidden.
-function createDropdownMenu(list, parentId, id = "", hideCallback = undefined) {
-	var div = document.createElement("div");
-	div.className = "dropdown-menu";
-	div.parentId = parentId;
-	div.hideCallback = hideCallback;
-	if (id) {
-		div.id = id;
-	}
+//How a dropdown menu can be aligned in relation to its activator
+const MENU_ALIGNMENT = { LEFT: 0, RIGHT: 1 };
+//How a menu is (shown or hidden)
+const MENU_STATUS = { HIDDEN: 0, SHOWN: 1 };
 
-	div.style.display = "none";
-	div.style.opacity = "0";
+/*
+Creates a dropdown menu DOM element (initially hidden) and adds it to the body. The menu's
+contents is a list of objects like the following one (the icon being optional):
+{ text: "Text to display", icon: "path to SVG", clickCallback: function(element) {} }
 
-	//Add the list items.
-	for (let i = 0; i < list.length; ++i) {
-		var item = document.createElement("div");
-		item.className = "dropdown-menu-item";
+The activator refers to the element that, when clicked, will trigger the menu to appear.
+addEventListener will be called for this element.
 
-		item.textContent = list[i][0];
-		item.addEventListener("click", list[i][1]);
-		div.appendChild(item);
-	}
+alignment must be a MENU_ALIGNMENT, so that the element is kept in position.
 
-	return div;
-}
+isObject should be true if the activator is an <object> element (like an SVG image, for example).
 
-function showDropdownMenu(menu) {
-	menu.style.removeProperty("display");
-	//Wait for the display property to take effect to turn on the opacity transition.
-	while (getComputedStyle(menu).display === "none");
-	menu.style.opacity = "1";
-}
+alignmentReference is the element the menu should be aligned to.
 
-//When the user clicks outside of the dropdown menu, hide all dropdown menus.
-window.addEventListener("click", function(e) {
-	let dropdownMenus = document.getElementsByClassName("dropdown-menu");
-	for (let i = 0; i < dropdownMenus.length; ++i) {
-		//Check if the user isn't clicking on the element that, when clicked, displays the menu.
-		if (e.target.id != dropdownMenus[i].parentId) {
-			dropdownMenus[i].style.opacity = "0";
+Some properties are added to the element:
+ - activator: the activator argument
+ - alignmentReference: the alignmentReference argument
+ - updatePosition: a function that can be called to re-align the menu. This should be called if the
+activator changes in size.
+ - onShowCallback: a function that gets called when the element is shown (between the removal of
+display: none and the setting of opacity to 0)
+ - onHideCallback: a function that gets called when the element is hidden (before setting opacity to
+0 and display to "none")
+ - status: if the menu is hidden or shown
 
-			//Hide the object after the transitions ends (only works with time in seconds)
-			dropdownMenus[i].ontransitionend = function() {
-				dropdownMenus[i].style.display = "none";
-				//Don't set the display to none when the opacity rises to 1 after clicking on the
-				//menu.
-				dropdownMenus[i].ontransitionend = function() {}
+The created menu element is returned.
+*/
+function createDropdownMenu(contents, activator, alignment, alignmentReference, isObject = false,
+	onShowCallback = function() {}, onHideCallback = function() {}) {
 
-				if (dropdownMenus[i].hideCallback)
-					dropdownMenus[i].hideCallback();
+	//Create the element, style it and make it hidden
+	let menu = document.createElement("div");
+	menu.className = "dropdown-menu";
+
+	menu.style.display = "none";
+	menu.style.opacity = "0";
+
+	menu.activator = activator;
+	menu.alignmentReference = alignmentReference;
+	menu.onShowCallback = onShowCallback;
+	menu.onHideCallback = onHideCallback;
+	menu.status = MENU_STATUS.HIDDEN;
+
+	//Activator click event handling (show the menu)
+	let activatorClickObject = activator
+	if (isObject)
+		activatorClickObject = activatorClickObject.contentDocument;
+
+	activatorClickObject.addEventListener("click", function() {
+		menu.style.removeProperty("display");
+		//Wait for the display property to take effect to turn on the opacity transition.
+		while (getComputedStyle(menu).display === "none");
+		onShowCallback();
+		menu.style.opacity = "1";
+		menu.status = MENU_STATUS.SHOWN;
+	});
+
+	//When the user clicks somewhere but the activator, hide the menu.	
+	window.addEventListener("click", function(e) {
+		if (e.target !== activator && menu.status === MENU_STATUS.SHOWN) {
+			onHideCallback();
+			menu.style.opacity = "0";
+			//Wait for the opacity transition to end to stop displaying the menu.
+			menu.ontransitionend = function() {
+				menu.style.display = "none";
+				menu.status = MENU_STATUS.HIDDEN;
+				//Don't hide the menu when it is activated (opacity transition to 1)
+				menu.ontransitionend = function() {}
 			};
 		}
+	});
+
+	//Keep the menu left / right aligned in relation to its activator. Re-adjust the menu when the
+	//window is resized
+	function updatePosition() {
+		let rect = alignmentReference.getBoundingClientRect();
+		menu.style.top = rect.bottom + "px";
+
+		if (alignment === MENU_ALIGNMENT.LEFT) {
+			menu.style.left = rect.left + "px";
+		} else {
+			menu.style.right = (window.innerWidth - rect.right) + "px";
+		}
 	}
-});
+	window.addEventListener("resize", updatePosition);
+	menu.updatePosition = updatePosition;
+	updatePosition();
+
+	//Add all dropdown items
+	for (let i = 0; i < contents.length; ++i) {
+		let menuItem = document.createElement("div");
+		menuItem.className = "dropdown-menu-item";
+
+		//Add the icon if there's one
+		if (contents[i].icon) {
+			let menuItemIcon = document.createElement("object");
+			menuItemIcon.classList.add("svg-image");
+			menuItemIcon.classList.add("dropdown-menu-item-icon");
+
+			menuItemIcon.data = contents[i].icon;
+			menuItem.appendChild(menuItemIcon);
+		}
+
+		//Add the text and the onclick callback
+		let menuItemText = document.createElement("div");
+		menuItemText.textContent = contents[i].text;
+		menuItem.appendChild(menuItemText);
+		menuItem.addEventListener("click", function() { contents[i].clickCallback(menu); });
+
+		menu.appendChild(menuItem);
+	}
+
+	document.body.appendChild(menu);
+	return menu;
+}
 
 //Load the theme when the page starts.
 window.addEventListener("load", function () {
