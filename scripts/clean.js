@@ -3,7 +3,7 @@
 //This script cleans the development environment by deleting everything but the needed files and
 //folders. If you need any file or directory not to be deleted, add it to the following list.
 let crucialDirectories = [ "scripts", "www", "config.xml", "package.json", "README.md", "LICENSE",
-	".gitignore", ".git" ];
+	"TODO.md", ".gitignore", ".git" ];
 
 //This script also removes Cordova platforms and plugins.
 
