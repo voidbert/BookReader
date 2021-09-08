@@ -1,11 +1,6 @@
+let isCordovaInitialized = false;
 document.addEventListener("deviceready", function() {
-	loadFile("file:///storage/emulated/0/file.txt", FILE_READING_MODE.READ_TEXT,
-	function(result) {
-		document.getElementById("file-contents").textContent = result;
-	}, function(error) {
-		alert("There was an error loading the file!");
-		console.error(error);
-	});
+	isCordovaInitialized = true;
 }, false);
 
 window.addEventListener("load", function() {
@@ -21,4 +16,22 @@ window.addEventListener("load", function() {
 		}
 	], document.getElementById("kebab-menu"), MENU_ALIGNMENT.RIGHT,
 	document.getElementById("header-bar"), true);
+
+	//When the plus icon is clicked, open a file dialog and open the chosen file
+	document.getElementById("plus-icon").addEventListener("click", function() {
+		while (!isCordovaInitialized); //Wait for Apache Cordova to start
+
+		chooser.getFileMetadata("text/plain", function(metadata) {
+			if (metadata) {
+				FilePath.resolveNativePath(metadata.uri, function(path) {
+					window.location.href = "../reader/reader.html?file=" + path;
+				}, function(error) {
+					alert("Failed to open the file!");
+					console.error(error);
+				});
+			}
+		}, function() {
+			alert("Error opening file picker!");
+		});
+	});
 });

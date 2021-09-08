@@ -5,7 +5,13 @@
 //licensed application source code and they need to be added separately.
 
 const platforms = [ "android" ];
-const plugins = [ "cordova-plugin-file", "cordova-plugin-android-permissions" ];
+const plugins =
+[
+	"cordova-plugin-file",
+	"cordova-plugin-android-permissions",
+	"cordova-plugin-chooser",
+	"cordova-plugin-filepath"
+];
 
 function main() {
 	const { cdProjectRoot, runCommand } = require("./core");

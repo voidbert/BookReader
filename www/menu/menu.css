@@ -2,3 +2,26 @@
 	display: flex;
 	justify-content: left;
 }
+
+#plus-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	position: fixed;
+	right: 1.5rem;
+	bottom: 1.5rem;
+
+	width: 3.5rem;
+	height: 3.5rem;
+
+	border-radius: 1.75rem;
+
+	background-color: var(--primary-color);
+	font-size: 2rem;
+	color: var(--secondary-color);
+}
+
+#plus-icon:hover {
+	color: var(--tertiary-color);
+}

@@ -7,32 +7,14 @@ const FILE_READING_MODE = {
 	READ_BINARY: 2
 };
 
-//This function loads a file using the cordova-plugin-file. Of course, it can only be called after
-//the deviceready event is triggered.
+//This function loads a file using the cordova-plugin-file (from a path). Of course, it can only be
+//called after the deviceready event is triggered.
 function loadFile(path, readingMode, successCallback, errorCallback) {
-
 	//Loads the file after it is confirmed that the app has permission to do it.
 	function loadWithPermission() {
 		resolveLocalFileSystemURL(path, function (entry) {
 			entry.file(function (file) {
-				if (readingMode === FILE_READING_MODE.CALLBACK_BLOB) {
-					successCallback(file);
-				} else {
-					let reader = new FileReader();
-					reader.onload = function() {	
-						successCallback(this.result);
-					};
-					reader.onerror = function() {
-						errorCallback(this.error);
-					};
-					if (readingMode === FILE_READING_MODE.READ_TEXT) {
-						reader.readAsText(file);
-					} else if (readingMode === FILE_READING_MODE.READ_BINARY) {
-						reader.readAsArrayBuffer(file);
-					} else {
-						errorCallback(new Error("Invalid readingMode value."));
-					}
-				}
+				readFile(file, readingMode, successCallback, errorCallback);
 			}, function (err) {
 				errorCallback(err);
 			});
@@ -62,6 +44,29 @@ function loadFile(path, readingMode, successCallback, errorCallback) {
 	}, function() {
 		errorCallback(new Error("Failed to check file reading permission."));
 	});
+}
+
+//Reads the contents of a File object. Files obtained from <input type="file"> can be read using
+//this function.
+function readFile(file, readingMode, successCallback, errorCallback) {
+	if (readingMode === FILE_READING_MODE.CALLBACK_BLOB) {
+		successCallback(file);
+	} else {
+		let reader = new FileReader();
+		reader.onload = function() {	
+			successCallback(this.result);
+		};
+		reader.onerror = function() {
+			errorCallback(this.error);
+		};
+		if (readingMode === FILE_READING_MODE.READ_TEXT) {
+			reader.readAsText(file);
+		} else if (readingMode === FILE_READING_MODE.READ_BINARY) {
+			reader.readAsArrayBuffer(file);
+		} else {
+			errorCallback(new Error("Invalid readingMode value."));
+		}
+	}
 }
 
 //A theme that can be applied to the page.
