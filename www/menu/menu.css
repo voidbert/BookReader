@@ -3,6 +3,34 @@
 	justify-content: left;
 }
 
+#book-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, 12rem);
+	justify-content: center;
+
+	grid-gap: 0.7em;
+}
+
+.book-grid-icon {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+
+.book-grid-icon:hover {
+	background-color: var(--tertiary-color);
+	color: var(--primary-color);
+}
+
+.book-grid-icon-img { margin: 0.7rem; }
+.book-grid-icon-text {
+	width: 100%;
+	
+	margin-bottom: 0.7rem;
+
+	word-wrap: break-word;
+}
+
 #plus-icon {
 	display: flex;
 	align-items: center;
