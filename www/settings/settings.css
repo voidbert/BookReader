@@ -8,7 +8,7 @@
 	transition: height 0.2s;
 }
 
-#app-theme {
+.settings-content-subdiv {
 	position: relative;
 	display: block;
 	overflow: auto;
@@ -22,6 +22,6 @@
 	float: left;
 }
 
-#theme-dropdown-button {
+.settings-right {
 	float: right;
 }

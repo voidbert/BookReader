@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 		<title>Settings</title>
 
+		<script src="../cordova.js" defer="defer"></script>
 		<script src="../core.js" defer="defer"></script>
 		<script src="settings.js" defer="defer"></script>
 
@@ -18,10 +19,16 @@
 		</div>
 		<div id="settings-content">
 			<div id="app-theme-with-dropdown" class="settings-item">
-				<div id="app-theme">
+				<div class="settings-content-subdiv" id="app-theme">
 					<div class="settings-option-text">Application Theme</div>
-					<button id="theme-dropdown-button">Loading ...</button>
+					<button class="settings-right" id="theme-dropdown-button">Loading ...</button>
 				</div>
+			</div>
+			<div class="settings-item">
+				<div class="settings-content-subdiv">
+					<div class="settings-option-text">Clear Recent Files Data</div>
+					<button class="settings-right" id="clear-data">Clear Data</button>
+				</div>	
 			</div>
 		</div>
 	</body>

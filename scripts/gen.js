@@ -10,7 +10,8 @@ const plugins =
 	"cordova-plugin-file",
 	"cordova-plugin-android-permissions",
 	"cordova-plugin-chooser",
-	"cordova-plugin-filepath"
+	"cordova-plugin-filepath",
+	"cordova-plugin-x-toast"
 ];
 
 function main() {

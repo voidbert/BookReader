@@ -1,14 +1,16 @@
 # To Do List
 
 ## High Priority
- - Book browser on the main menu
+ - Better SVG usage
 
 ## Medium Priority
- - Settings back icon
- - About page (with licenses)
  - iframe wrapper (to avoid white page loading background)
- - SVG colors (and maybe hover colors) on dropdown menus
+ - About page (with licenses)
  - Settings, About and Themes icons
 
 ## Low Priority
+ - Settings back icon
+ - Other book organization methods
+
+## Ultra Low Priority
  - XML parser for managing Android permissions

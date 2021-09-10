@@ -1,3 +1,8 @@
+let isCordovaInitialized = false;
+document.addEventListener("deviceready", function() {
+	isCordovaInitialized = true;
+}, false);
+
 //Loads the theme from the storage to display it.
 function setThemeText() {
 	document.getElementById("theme-dropdown-button").textContent =
@@ -49,4 +54,13 @@ window.addEventListener("load", function() {
 		container.style.height = (activatorRect.bottom - containerRect.top) + "px";
 	}
 	onHide();
+
+	//Clear recent files data button
+	document.getElementById("clear-data").addEventListener("click", function() {
+		if (confirm("Are you sure you want me to forget what books you read recently?")) {
+			while (!isCordovaInitialized); //Wait for Apache Cordova to start
+			window.localStorage.setItem("book-list", "{}");
+			plugins.toast.show("Data cleared!", "short", "bottom");
+		}
+	});
 });
