@@ -9,7 +9,7 @@
  - Settings, About and Themes icons
 
 ## Low Priority
- - Settings back icon
+ - Settings and Main Menu back icons
  - Other book organization methods
 
 ## Ultra Low Priority

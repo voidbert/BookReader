@@ -264,6 +264,53 @@ function createDropdownMenu(contents, activator, alignment, alignmentReference, 
 	return menu;
 }
 
+//Returns the dictionary of books stored in window.localStorage. If the value doesn't exist / is
+//invalid in storage, {} is stored and returned. List structure:
+//{ fileName: {lastOpened: UNIX Time}, ... }
+function loadBookList() {
+	let list = window.localStorage.getItem("book-list");
+	if (list === null) {
+		//First time running the app. Initializer the storage.
+		window.localStorage.setItem("book-list", "{}");
+		list = "{}";
+	}
+
+	try {
+		list = JSON.parse(list);
+	} catch {
+		console.error("Error parsing book-list JSON");
+		//Silently reset the list of books.
+		window.localStorage.setItem("book-list", "{}");
+		return {};
+	}
+
+	return list;
+}
+
+//Opens a book in the reader and stores the current moment as the last opened timestamp.
+function openBook(filepath, isNewFile = false) {
+	//Update / add the file with the current time.
+	let list = loadBookList();
+	if (filepath in list) {
+		//The book has already been added to the list. Just modify its last opened timestamp.
+		list[filepath].lastOpened = Date.now();
+	} else {
+		//The book was never open. Add it to the list.
+		list[filepath] = { lastOpened: Date.now() };
+	}
+	window.localStorage.setItem("book-list", JSON.stringify(list));
+	
+	//Open the book with the reader.
+	window.location.href = "../reader/reader.html?file=" + filepath;
+}
+
+//Removes a book from the list of recently read books.
+function removeBook(filepath) {
+	let list = loadBookList();
+	delete list[filepath];
+	window.localStorage.setItem("book-list", JSON.stringify(list));
+}
+
 //Load the theme when the page starts.
 window.addEventListener("load", function () {
 	loadTheme(realTheme(getTheme()));

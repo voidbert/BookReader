@@ -1,6 +1,6 @@
-#file-contents {
-	display: flex;
-	justify-content: left;
+#remove {
+	opacity: 0; /*Opacity is a temporary fix (before a better way to include SVGs is implemented)*/
+	transition: opacity 0.2s;
 }
 
 #book-grid {
@@ -8,16 +8,19 @@
 	grid-template-columns: repeat(auto-fill, 12rem);
 	justify-content: center;
 
-	grid-gap: 0.7em;
+	grid-gap: 0.7rem;
 }
 
 .book-grid-icon {
 	display: flex;
 	flex-direction: column;
+
+	border-radius: 0.5rem;
+
 	text-align: center;
 }
 
-.book-grid-icon:hover {
+.book-grid-icon-selected {
 	background-color: var(--tertiary-color);
 	color: var(--primary-color);
 }
