@@ -202,6 +202,13 @@ window.addEventListener("load", function() {
 								Math.abs(currentTouch.y - currentTouch.startY) <= 10) {
 
 								toggleBookSelection(bookIconFinal.filepath);
+
+								//Vibrate if haptic feedback is enabled
+								if (window.localStorage.getItem("haptic-feedback") === "True") {
+									//Wait for Apache Cordova to start before vibrating
+									while (!isCordovaInitialized);
+									navigator.vibrate(100);
+								}
 							}
 						}
 					} else {

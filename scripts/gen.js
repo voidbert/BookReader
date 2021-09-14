@@ -11,7 +11,8 @@ const plugins =
 	"cordova-plugin-android-permissions",
 	"cordova-plugin-chooser",
 	"cordova-plugin-filepath",
-	"cordova-plugin-x-toast"
+	"cordova-plugin-x-toast",
+	"cordova-plugin-vibration"
 ];
 
 function main() {
