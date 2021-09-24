@@ -97,12 +97,7 @@ function loadGrid() {
 		let text = document.createElement("div");
 		text.className = "book-grid-icon-text";
 
-		//Get the name of the file
-		keys[i].replace("\\", "/");
-		let splitPath = keys[i].split("/");
-		let name = splitPath[splitPath.length - 1].split(".")[0];
-
-		text.textContent = name;
+		text.textContent = list[keys[i]].bookTitle;
 		item.appendChild(text);
 
 		//Event listeners (click to open book normally or to add it to the selection if in selection
@@ -139,7 +134,9 @@ window.addEventListener("load", function() {
 	document.getElementById("plus-icon").addEventListener("click", function() {
 		while (!isCordovaInitialized); //Wait for Apache Cordova to start
 
-		chooser.getFileMetadata("text/plain", function(metadata) {
+		//application/octet-stream is a valid mime type because Android sometimes mislabels .json
+		//files
+		chooser.getFileMetadata("application/octet-stream,application/json", function(metadata) {
 			if (metadata) {
 				FilePath.resolveNativePath(metadata.uri, function(path) {
 					openBook(path);

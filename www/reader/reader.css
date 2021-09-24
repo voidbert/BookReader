@@ -1,0 +1,25 @@
+#bottom-bar {
+	position: fixed;
+	left: 0.7rem;
+	right: 0.7rem;
+	bottom: 0.7rem;
+	min-height: 3rem;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 0.5rem;
+
+	background-color: var(--primary-color);
+}
+
+canvas {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+
+	width: 100vw;
+	height: 100vh;
+}

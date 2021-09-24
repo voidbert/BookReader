@@ -4,7 +4,8 @@
 const FILE_READING_MODE = {
 	CALLBACK_BLOB: 0,
 	READ_TEXT: 1,
-	READ_BINARY: 2
+	READ_BINARY: 2,
+	DATA_URL: 3
 };
 
 //This function loads a file using the cordova-plugin-file (from a path). Of course, it can only be
@@ -63,6 +64,8 @@ function readFile(file, readingMode, successCallback, errorCallback) {
 			reader.readAsText(file);
 		} else if (readingMode === FILE_READING_MODE.READ_BINARY) {
 			reader.readAsArrayBuffer(file);
+		} else if (readingMode === FILE_READING_MODE.DATA_URL) {
+			reader.readAsDataURL(file);
 		} else {
 			errorCallback(new Error("Invalid readingMode value."));
 		}
@@ -266,7 +269,7 @@ function createDropdownMenu(contents, activator, alignment, alignmentReference, 
 
 //Returns the dictionary of books stored in window.localStorage. If the value doesn't exist / is
 //invalid in storage, {} is stored and returned. List structure:
-//{ fileName: {lastOpened: UNIX Time}, ... }
+//{ fileName: {lastOpened: UNIX Time, bookTitle: Title, page: number of last open page}, ... }
 function loadBookList() {
 	let list = window.localStorage.getItem("book-list");
 	if (list === null) {
@@ -295,13 +298,32 @@ function openBook(filepath, isNewFile = false) {
 		//The book has already been added to the list. Just modify its last opened timestamp.
 		list[filepath].lastOpened = Date.now();
 	} else {
-		//The book was never open. Add it to the list.
-		list[filepath] = { lastOpened: Date.now() };
+		//The book was never open. Add it to the list. First, get the name of the file as a
+		//temporary title (before the JSON of the book is loaded).
+		let filepathReplacedSlashes = filepath.replace("\\", "/");
+		let splitPath = filepathReplacedSlashes.split("/");
+		let name = splitPath[splitPath.length - 1].split(".")[0];
+
+		list[filepath] = { lastOpened: Date.now(), bookTitle: name, page: 1};
 	}
 	window.localStorage.setItem("book-list", JSON.stringify(list));
 	
 	//Open the book with the reader.
-	window.location.href = "../reader/reader.html?file=" + filepath;
+	window.location.href = "../reader/reader.html?file=" + filepath + "&page=" + list[filepath].page;
+}
+
+//Stores the title for a book (text that will be displayed in the menu).
+function setBookTitle(filepath, title) {
+	let list = loadBookList();
+	list[filepath].bookTitle = title;
+	window.localStorage.setItem("book-list", JSON.stringify(list));
+}
+
+//Stores the number of last book page the user was reading. 
+function setBookLastPage(filepath, page) {
+	let list = loadBookList();
+	list[filepath].page = page;
+	window.localStorage.setItem("book-list", JSON.stringify(list));
 }
 
 //Removes a book from the list of recently read books.
@@ -309,6 +331,12 @@ function removeBook(filepath) {
 	let list = loadBookList();
 	delete list[filepath];
 	window.localStorage.setItem("book-list", JSON.stringify(list));
+}
+
+//Checks if the contents of an object parsed from a JSON file are valid (contain the needed fields).
+function checkBook(bookObject) {
+	let keys = Object.keys(bookObject);
+	return keys.includes("title") && keys.includes("pageFormat") && keys.includes("pageCount");
 }
 
 //Load the theme when the page starts.
