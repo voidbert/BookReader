@@ -30,7 +30,15 @@ function toggleBookSelection(filepath) {
 	if (selectedBooks.indexOf(filepath) === -1) {
 		selectedBooks.push(filepath); //Book not in the selected list. Add it.
 		gridElement.classList.add("book-grid-icon-selected");
-		document.getElementById("remove").style.opacity = "1";
+
+		let removeButton = document.getElementById("remove");
+		removeButton.style.display = "flex";
+		//Wait for the element to be displayed to start the transition
+		while (getComputedStyle(removeButton).display === "none");
+		removeButton.style.opacity = "1";
+		//Do nothing when the transition ends (instead of setting display to none)
+		removeButton.ontransitionend = function() {};
+
 	} else {
 		selectedBooks = selectedBooks.filter(function(val) {
 			return val !== filepath;
@@ -48,7 +56,11 @@ function toggleBookSelection(filepath) {
 //Hides the remove button and unselects all books.
 function leaveSelectionMode() {
 	selectedBooks = [];
-	document.getElementById("remove").style.removeProperty("opacity");
+	let removeButton = document.getElementById("remove");
+	removeButton.style.opacity = "0";
+	removeButton.ontransitionend = function() {
+		removeButton.style.display = "none";
+	}
 
 	//Unstyle all selected elements.
 	let gridElements = Array.from(document.getElementsByClassName("book-grid-icon"));
@@ -127,8 +139,8 @@ window.addEventListener("load", function() {
 			text: "About",
 			clickCallback: function() { alert("The user clicked on About"); }
 		}
-	], document.getElementById("kebab-menu"), MENU_ALIGNMENT.RIGHT,
-	document.getElementById("header-bar"), true);
+	], document.getElementById("kebab-menu"),
+	MENU_ALIGNMENT.RIGHT, document.getElementById("header-bar"));
 
 	//When the plus icon is clicked, open a file dialog and open the chosen file
 	document.getElementById("plus-icon").addEventListener("click", function() {
@@ -151,8 +163,7 @@ window.addEventListener("load", function() {
 	});
 
 	//Remove all selected books from recents list when the remove button is clicked
-	document.getElementById("remove").getSVGDocument().documentElement.addEventListener("click",
-		function() {
+	document.getElementById("remove").addEventListener("click", function() {
 		if (confirm("Are you sure you want to remove the selected books from the recent books " +
 			"list?")) {
 			//Remove selected books from displayed grid.
@@ -208,9 +219,7 @@ window.addEventListener("load", function() {
 								}
 							}
 						}
-					} else {
-						//The finger left the book. Ignore it.
-					}	
+					}
 				}, 500));
 			} else {
 				currentTouch.startElementFilepath = ""; //Touch not on any book

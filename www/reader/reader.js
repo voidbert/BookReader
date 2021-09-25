@@ -19,6 +19,7 @@ function goBackOnBadBook(filePath, error) {
 		removeBook(filePath);
 	}
 	console.error(error);
+	AndroidFullScreen.showSystemUI(undefined, undefined);
 	window.history.back();
 }
 
@@ -143,6 +144,7 @@ document.addEventListener("deviceready", function() {
 	} else {
 		alert("No reader arguments error! Please contact the developer telling them what was " +
 			"done for the program to get in this invalid state.");
+		AndroidFullScreen.showSystemUI(undefined, undefined);
 		window.history.back();
 	}
 }, false);

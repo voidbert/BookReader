@@ -16,8 +16,18 @@
 		<div id="header-bar">
 			<div id="header-bar-title">Book Reader</div>
 			<div id="header-bar-icons-container">
-				<object id="remove" class="header-bar-icon svg-image" data="../coreArt/cross.svg"></object>
-				<object id="kebab-menu" class="header-bar-icon svg-image" data="../coreArt/kebab.svg"></object>
+				<!--Cross to remove books-->
+				<svg class="header-bar-icon" id="remove" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+					<rect x="17" y="29.5" width="30" height="5" rx="2.5" ry="2.5" transform="rotate(45 32 32)"></rect>
+					<rect x="17" y="29.5" width="30" height="5" rx="2.5" ry="2.5" transform="rotate(-45 32 32)"></rect>
+				</svg>
+
+				<!--Kebab menu-->
+				<svg class="header-bar-icon" id="kebab-menu" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+					<circle cx="32" cy="16" r="5" />
+					<circle cx="32" cy="32" r="5" />
+					<circle cx="32" cy="48" r="5" />
+				</svg>
 			</div>
 		</div>
 		<div id="book-grid"></div>

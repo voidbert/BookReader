@@ -110,14 +110,6 @@ function storeTheme(pageTheme) {
 //Applies a theme to a page. It mustn't be SYSTEM_DEFAULT (use realTheme for converting it to LIGHT
 //or DARK).
 function loadTheme(theme) {
-	//Find every place where the CSS variables for colors need to be changed. This includes all SVG
-	//images.
-	let styles = [ document.documentElement.style ];
-	let svgImages = document.getElementsByClassName("svg-image");
-	for (let i = 0; i < svgImages.length; ++i) {
-		styles.push(svgImages[i].getSVGDocument().documentElement.style);
-	}
-
 	let backgroundColor, foregroundColor, primaryColor, secondaryColor, tertiaryColor;
 	switch (theme) {
 		case PAGE_THEME.LIGHT:
@@ -137,13 +129,11 @@ function loadTheme(theme) {
 			break;
 	}
 
-	for (let i = 0; i < styles.length; ++i) {
-		styles[i].setProperty("--background-color", backgroundColor);
-		styles[i].setProperty("--foreground-color", foregroundColor);
-		styles[i].setProperty("--primary-color", primaryColor);
-		styles[i].setProperty("--secondary-color", secondaryColor);
-		styles[i].setProperty("--tertiary-color", tertiaryColor);
-	}
+	document.documentElement.style.setProperty("--background-color", backgroundColor);
+	document.documentElement.style.setProperty("--foreground-color", foregroundColor);
+	document.documentElement.style.setProperty("--primary-color", primaryColor);
+	document.documentElement.style.setProperty("--secondary-color", secondaryColor);
+	document.documentElement.style.setProperty("--tertiary-color", tertiaryColor);
 }
 
 //How a dropdown menu can be aligned in relation to its activator
@@ -161,8 +151,6 @@ addEventListener will be called for this element.
 
 alignment must be a MENU_ALIGNMENT, so that the element is kept in position.
 
-isObject should be true if the activator is an <object> element (like an SVG image, for example).
-
 alignmentReference is the element the menu should be aligned to.
 
 Some properties are added to the element:
@@ -178,7 +166,7 @@ display: none and the setting of opacity to 0)
 
 The created menu element is returned.
 */
-function createDropdownMenu(contents, activator, alignment, alignmentReference, isObject = false,
+function createDropdownMenu(contents, activator, alignment, alignmentReference,
 	onShowCallback = function() {}, onHideCallback = function() {}) {
 
 	//Create the element, style it and make it hidden
@@ -194,12 +182,7 @@ function createDropdownMenu(contents, activator, alignment, alignmentReference, 
 	menu.onHideCallback = onHideCallback;
 	menu.status = MENU_STATUS.HIDDEN;
 
-	//Activator click event handling (show the menu)
-	let activatorClickObject = activator
-	if (isObject)
-		activatorClickObject = activatorClickObject.contentDocument;
-
-	activatorClickObject.addEventListener("click", function() {
+	activator.addEventListener("click", function() {
 		menu.style.removeProperty("display");
 		//Wait for the display property to take effect to turn on the opacity transition.
 		while (getComputedStyle(menu).display === "none");
@@ -247,8 +230,7 @@ function createDropdownMenu(contents, activator, alignment, alignmentReference, 
 		//Add the icon if there's one
 		if (contents[i].icon) {
 			let menuItemIcon = document.createElement("object");
-			menuItemIcon.classList.add("svg-image");
-			menuItemIcon.classList.add("dropdown-menu-item-icon");
+			menuItemIcon.class = "dropdown-menu-item-icon";
 
 			menuItemIcon.data = contents[i].icon;
 			menuItem.appendChild(menuItemIcon);

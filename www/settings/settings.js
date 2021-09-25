@@ -49,7 +49,7 @@ window.addEventListener("load", function() {
 	//Dropdown menu to choose theme
 	let activator = document.getElementById("theme-dropdown-button");
 	let themeMenu = createDropdownMenu(themeDropdownValues, activator, MENU_ALIGNMENT.RIGHT,
-		activator, false, onShow, onHide);
+		activator, onShow, onHide);
 
 	//Move the bottom border with the changing of the settings dropdown menu status
 	let container = document.getElementById("app-theme-with-dropdown");

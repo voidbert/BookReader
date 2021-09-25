@@ -1,7 +1,7 @@
 # To Do List
 
 ## High Priority
- - Better SVG usage
+ - Functional reader
 
 ## Medium Priority
  - iframe wrapper (to avoid white page loading background)
