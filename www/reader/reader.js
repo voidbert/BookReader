@@ -110,6 +110,12 @@ window.addEventListener("load", function() {
 
 //Display the file when it can be read from the system's storage.
 document.addEventListener("deviceready", function() {
+	//Put the window in full screen modes
+	AndroidFullScreen.immersiveMode(undefined, function() {
+		//Don't warn the user and keep running the app in normal mode. Just write to the console.
+		console.error("Failed to put the app in full screen");
+	});
+
 	//Parse the URL to find the book to be opened and the page it should be opened in.
 	const urlParams = new URLSearchParams(window.location.search);
 	currentPage = urlParams.get("page");
@@ -140,3 +146,9 @@ document.addEventListener("deviceready", function() {
 		window.history.back();
 	}
 }, false);
+
+//When the user leaves the page, return to normal mode
+document.addEventListener("backbutton", function() {
+	AndroidFullScreen.showSystemUI(undefined, undefined);
+	window.history.back();
+});

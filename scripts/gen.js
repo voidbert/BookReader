@@ -12,7 +12,8 @@ const plugins =
 	"cordova-plugin-chooser",
 	"cordova-plugin-filepath",
 	"cordova-plugin-x-toast",
-	"cordova-plugin-vibration"
+	"cordova-plugin-vibration",
+	"cordova-plugin-fullscreen"
 ];
 
 function main() {
