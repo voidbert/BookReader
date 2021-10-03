@@ -3,12 +3,17 @@ let isCordovaInitialized = false;
 let bookObject = undefined;
 let filePath = "";
 
-let canvas = undefined;
+let canvas = document.getElementById("canvas");
 let ctx = undefined;
 
 let pagePosition = { x: 0, y: 0 };
+let pageScale = 1;
 let loadedPages = {};
 let currentPage = 0;
+
+let touches = {};
+let touchAccelerationIntervals = [];
+let touchDistanceAvg = 0;
 
 //A function that gets called when a book can't be loaded (not readable or corrupt). It will ask the
 //user if the book should be removed from the recent books list (and do it if asked to) and go back
@@ -49,10 +54,21 @@ function loadPage(number) {
 	}
 }
 
+//Converts screen coordinates (of a touch, for example) to page coordinates. Output format:
+//{x: ..., y: ...}
+function screenToPageCoords(x, y) {
+	return {
+		x: (x - pagePosition.x) / pageScale,
+		y: (y - pagePosition.y) / pageScale
+	};
+}
+
 //Renders the book pages whenever needed.
 function render() {
 	loadPage(currentPage);
 
+	ctx.font = window.devicePixelRatio + "rem sans-serif";
+	ctx.textAlign = "center";
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	if (loadedPages[currentPage].fail) {
@@ -81,7 +97,9 @@ function render() {
 		return;
 	} else {
 		//The image has loaded. Render it.
-		ctx.drawImage(loadedPages[currentPage], pagePosition.x, pagePosition.y);
+		ctx.drawImage(loadedPages[currentPage], pagePosition.x, pagePosition.y,
+			loadedPages[currentPage].width * pageScale, loadedPages[currentPage].height * pageScale
+		);
 	}
 }
 
@@ -89,15 +107,10 @@ function render() {
 function onresize() {
 	canvas.width  = window.innerWidth  * window.devicePixelRatio;
 	canvas.height = window.innerHeight * window.devicePixelRatio;
-
-	ctx.font = window.devicePixelRatio + "rem sans-serif";
-	ctx.textAlign = "center";
-
 	render();
 }
 window.addEventListener("resize", onresize);
 window.addEventListener("load", function() {
-	canvas = document.getElementById("canvas");
 	ctx = canvas.getContext("2d");
 
 	//Wait for cordova to start before rendering the page
@@ -153,4 +166,138 @@ document.addEventListener("deviceready", function() {
 document.addEventListener("backbutton", function() {
 	AndroidFullScreen.showSystemUI(undefined, undefined);
 	window.history.back();
+});
+
+canvas.addEventListener("touchstart", function(e) {
+	for (let i = 0; i < e.changedTouches.length; ++i) {
+		//dpi adjustment
+		let clientX = e.changedTouches[i].clientX * devicePixelRatio;
+		let clientY = e.changedTouches[i].clientY * devicePixelRatio;
+
+		//Register the current touch and the file it started in
+		touches[e.changedTouches[i].identifier] = {
+			x: clientX, y: clientY, lastUpdateTime: Date.now(), velocityX: 0, velocityY: 0
+		};
+
+		//If the user touches the page, stop the accelerated touches (these occur when a touch
+		//leaves the screen with velocity)
+		if (Object.keys(touches).length === 1) {
+			for (let i = 0; i < touchAccelerationIntervals.length; ++i) {
+				clearInterval(touchAccelerationIntervals[i]);
+			}
+			touchAccelerationIntervals = [];
+		}
+	}
+
+	//Reset the distance between fingers.
+	touchDistanceAvg = 0;
+});
+
+canvas.addEventListener("touchmove", function(e) {
+	for (let i = 0; i < e.changedTouches.length; ++i) {
+		//dpi adjustment
+		let clientX = e.changedTouches[i].clientX * devicePixelRatio;
+		let clientY = e.changedTouches[i].clientY * devicePixelRatio;
+		let touch = touches[e.changedTouches[i].identifier]; //Name simplification	
+
+		//Calculate the time before the last and the current event for touch velocity calculation.
+		let deltaTime = (Date.now() - touches[e.changedTouches[i].identifier].lastUpdateTime) / 100;
+		touch.velocityX = ((clientX - touch.x) * 5) / deltaTime;
+		touch.velocityY = ((clientY - touch.y) * 5) / deltaTime;
+
+		//Limit the velocity of the touch
+		if (touch.velocityX > 0) {
+			touch.velocityX = Math.min(750, touch.velocityX);
+		} else {
+			touch.velocityX = Math.max(-750, touch.velocityX);
+		}
+
+		if (touch.velocityY > 0) {
+			touch.velocityY = Math.min(750, touch.velocityY);
+		} else {
+			touch.velocityY = Math.max(-750, touch.velocityY);
+		}
+
+		touch.lastUpdateTime = Date.now();
+		touch.oldX = touch.x;
+		touch.oldY = touch.y;
+		touch.x = clientX;
+		touch.y = clientY;
+	}
+	
+	//Move the page if there is only one touch
+	let keys = Object.keys(touches);
+	if (keys.length === 1) {
+		pagePosition.x += (touches[keys[0]].x - touches[keys[0]].oldX);
+		pagePosition.y += (touches[keys[0]].y - touches[keys[0]].oldY);
+		render();
+	} else {
+		//More than one touch. Calculate the average distance between touches to zoom in and out of
+		//the page if that distance has changed. Also calculate the center point between all fingers
+		//to zoom into that point.
+		let distanceSum = 0;
+		let centerX = 0, centerY = 0;
+		for (let i = 0; i < keys.length; ++i) {
+			for (let j = i + 1; j < keys.length; ++j) {
+				distanceSum += Math.sqrt(
+					Math.pow(touches[keys[i]].x - touches[keys[j]].x, 2) +
+					Math.pow(touches[keys[i]].y - touches[keys[j]].y, 2));
+			}
+
+			centerX += touches[i].x;
+			centerY += touches[i].y;
+		}
+		centerX /= keys.length;
+		centerY /= keys.length;
+
+		//Convert the screen coordinates to page coordinates.
+		let centerTouchPagePosition = screenToPageCoords(centerX, centerY);
+
+		let distanceAvg = distanceSum / (keys.length * keys.length - keys.length); //n^2 - n
+		if (touchDistanceAvg !== 0) {
+			//Don't zoom if this is the first time the distance is calculated
+			pageScale += (distanceAvg - touchDistanceAvg) * pageScale * 0.003;
+			pageScale = Math.min(Math.max(pageScale, 0.1), 20); //Limit the zoom's range
+
+			pagePosition.x = centerX - centerTouchPagePosition.x * pageScale;
+			pagePosition.y = centerY - centerTouchPagePosition.y * pageScale;
+			render();
+		}	
+		touchDistanceAvg = distanceAvg;	
+	}
+});
+
+canvas.addEventListener("touchend", function(e) {
+	//If the only touch on the page has been lifted, keep moving the page and reducing the speed
+	//of the movement until it is minimal.
+	let keys = Object.keys(touches);
+	if (keys.length === 1) {
+		let velocityX = touches[keys[0]].velocityX / 10;
+		let velocityY = touches[keys[0]].velocityY / 10;
+
+		let interval = setInterval(function() {
+			if (Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1) {
+				//The speed is minimal. Stop adding it to the position.
+				touchAccelerationIntervals = touchAccelerationIntervals.filter(function(val) {
+					return val !== interval;
+				});
+				clearInterval(interval);
+
+			}
+			pagePosition.x += velocityX;
+			pagePosition.y += velocityY;
+			velocityX *= 0.95;
+			velocityY *= 0.95;
+			render();
+		}, 10);
+		touchAccelerationIntervals.push(interval);
+	}
+
+	//Reset the distance between fingers.
+	touchDistanceAvg = 0;
+	
+	//Remove the touches from the list
+	for (let i = 0; i < e.changedTouches.length; ++i) {
+		delete touches[e.changedTouches[i].identifier];
+	}
 });
